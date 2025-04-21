@@ -1,0 +1,29 @@
+{
+  "name": "gooner-snow-bot",
+  "version": "1.0.0",
+  "description": "mff discord bot",
+  "homepage": "https://github.com/27IQ/gooner-snow-bot#readme",
+  "bugs": {
+    "url": "https://github.com/27IQ/gooner-snow-bot/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/27IQ/gooner-snow-bot.git"
+  },
+  "license": "ISC",
+  "author": "-27IQ",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "discord.js": "^14.18.0",
+    "dotenv": "^16.5.0",
+    "node-cron": "^3.0.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.25.0",
+    "eslint": "^9.25.0"
+  }
+}
