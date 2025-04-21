@@ -14,9 +14,10 @@ function startMidnightReminder(client) {
 
     const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
     const channelId = config.registeredChannelId;
+    const roleId = config.pingRoleId;
 
-    if (!channelId) {
-      console.warn('⚠️ No channel registered for midnight messages.');
+    if (!channelId || !roleId) {
+      console.warn('⚠️ No channel or role registered.');
       return;
     }
 
@@ -26,12 +27,15 @@ function startMidnightReminder(client) {
       return;
     }
 
-    channel.send("🎉 Daily RESET");
+    channel.send({
+      content:`🎉 Daily RESET <@&${roleId}>`,
+      allowedMentions: { roles: [roleId] }
+    });
   }, {
     timezone: 'Asia/Seoul',
   });
 
-  console.log("✅ Korean midnight reminder is scheduled.");
+  console.log("✅ MFF reset reminder is scheduled.");
 }
 
 module.exports = { startMidnightReminder };

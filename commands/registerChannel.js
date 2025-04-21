@@ -8,12 +8,27 @@ const configPath = path.join(__dirname, '../data/config.json');
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('registerchannel')
-    .setDescription('Registers this channel for the reset reminder.'),
+    .setDescription('Registers this channel for the reset reminder.')
+    .addRoleOption(option =>
+      option.setName('role')
+        .setDescription('The role to ping at midnight')
+        .setRequired(true)
+    ),
+    
+    
   async execute(interaction) {
     const channelId = interaction.channel.id;
+    const role = interaction.options.getRole('role');
 
-    const config = { registeredChannelId: channelId };
-    fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+    const config = { 
+      registeredChannelId: channelId,
+      pingRoleId: role.id
+     };
+
+    if(!fs.existsSync("./data"))
+      fs.mkdirSync("./data")
+
+    fs.appendFileSync(configPath, JSON.stringify(config, null, 2));
 
     await interaction.reply({
       content: `✅ Registered this channel (<#${channelId}>) for the reset reminder.`,
