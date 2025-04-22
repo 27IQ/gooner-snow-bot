@@ -12,6 +12,12 @@ async function startForumChecker(client,link) {
     console.log("⏰ It's fetching time");
 
     const channel= await getChannel(client)
+
+    if(channel==null){
+      console.error("channel missing")
+      return
+    }
+
     const articles=await scrape.scrapeForumArticles(link)
 
     //filter the articles
@@ -33,21 +39,23 @@ async function startForumChecker(client,link) {
 }
 
 async function getChannel(client){
-    if (!fs.existsSync(configPath)) return;
+    let fileContent
 
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    if (!fs.existsSync(configPath)||(fileContent=(fs.readFileSync(configPath, 'utf-8')))=="") return null;
+
+    const config = JSON.parse(fileContent);
     const channelId = config.registeredChannelId;
     const roleId = config.pingRoleId;
 
     if (!channelId || !roleId) {
       console.warn('⚠️ No channel or role registered.');
-      return;
+      return null;
     }
 
     const channel = await client.channels.fetch(channelId).catch(() => null);
     if (!channel) {
       console.warn('⚠️ Could not find registered channel.');
-      return;
+      return null;
     }
 
     return channel
