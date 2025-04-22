@@ -1,53 +1,79 @@
-const puppeteer = require('puppeteer');
-const forumArticleData = require('./forumArticleData');
+// reminder/index.js
+const cron = require('node-cron');
+const fs = require('fs');
+const path = require('path');
+const scrape=require('./scrape');
 
-(async () => {
-    const browser = await puppeteer.launch({ headless: true });
-    const page = await browser.newPage();
-    await page.setUserAgent(
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0'
-    );
+const configPath = path.join(__dirname, '../data/config.json');
+const SENT_LINKS_FILE = path.join(__dirname, '../data/sentLinks.json');
 
-    await page.setExtraHTTPHeaders({
-        'Accept-Language': 'de-DE,de;q=0.9'
-    });
-      
-    await page.goto('https://forum.netmarble.com/futurefight_en/list/notice',{
-         waitUntil: 'networkidle0'
+async function startForumChecker(client,link) {
+  cron.schedule('0 * * * *', async () => {
+    console.log("⏰ It's fetching time");
+
+    const channel= await getChannel(client)
+    const articles=await scrape.scrapeForumArticles(link)
+
+    //filter the articles
+    const sentLinks = loadSentLinks()
+    const newArticles= articles.filter(article=>!sentLinks.has(article.link))
+
+    newArticles.forEach(article=>{
+        article.sendMessage(channel);
+        sentLinks.add(article.link)
     })
 
+    saveSentLinks(sentLinks)
 
-    const articles = await page.$$eval('div.atc_lt', divs =>
-        divs.map(div => {
-          const links = Array.from(div.querySelectorAll('a'))
-            .map(a => a.href);
-          return {
-            text: div.innerText.trim(),
-            links: links
-          };
-        })
-      );
+  }, {
+    timezone: 'Asia/Seoul',
+  });
 
-    let result=[]
-    const smalltags=['Benachrichtigung','Event']
-    const bigtags=['Unbedingt lesen NEWS','Benachrichtigung UPDATE NEWS','Benachrichtigung SNEAK PEEK','Event EVENTS AND SALES (Ongoing)','Benachrichtigung NEWS','Benachrichtigung GUIDES','Benachrichtigung EVENTS AND SALES (Ongoing)']
-    
-    articles.forEach(article=>{
-        const currentText=article.text.split("\n")
-
-        if(hasTag(currentText[0],smalltags)){
-            result.push(new forumArticleData(currentText[1],article.links[1],currentText[2]))
-        }else if(hasTag(currentText[0],bigtags)){
-            result.push(new forumArticleData(currentText[1],article.links[2],currentText[2]))
-        }else{
-            result.push(new forumArticleData(currentText[0],article.links[0],currentText[1]))
-        }
-    })
-    
-    console.log(result)
-    await browser.close()
-})();
-
-function hasTag(text,tags){
-    return tags.includes(text)
+  console.log(`✅ MFF ${link} checker is scheduled.`);
 }
+
+async function getChannel(client){
+    if (!fs.existsSync(configPath)) return;
+
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    const channelId = config.registeredChannelId;
+    const roleId = config.pingRoleId;
+
+    if (!channelId || !roleId) {
+      console.warn('⚠️ No channel or role registered.');
+      return;
+    }
+
+    const channel = await client.channels.fetch(channelId).catch(() => null);
+    if (!channel) {
+      console.warn('⚠️ Could not find registered channel.');
+      return;
+    }
+
+    return channel
+}
+
+
+// Function to load sent links from the JSON file
+function loadSentLinks() {
+    try {
+        if (fs.existsSync(SENT_LINKS_FILE)) {
+            const data = fs.readFileSync(SENT_LINKS_FILE, 'utf8');
+            return new Set(JSON.parse(data));
+        }
+    } catch (error) {
+        console.error('Error reading sent links file:', error);
+    }
+    return new Set(); // Return an empty set if there's an error or no file
+}
+
+// Function to save sent links to the JSON file
+function saveSentLinks(sentLinks) {
+    try {
+        fs.writeFileSync(SENT_LINKS_FILE, JSON.stringify([...sentLinks], null, 2), 'utf8');
+    } catch (error) {
+        console.error('Error writing sent links file:', error);
+    }
+}
+
+module.exports = { startForumChecker };

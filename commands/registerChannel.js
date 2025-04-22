@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const configPath = path.join(__dirname, '../data/config.json');
+const SENT_LINKS_FILE = path.join(__dirname, '../data/sentLinks.json');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -29,6 +30,7 @@ module.exports = {
       fs.mkdirSync("./data")
 
     fs.appendFileSync(configPath, JSON.stringify(config, null, 2));
+    fs.appendFileSync(SENT_LINKS_FILE, "");
 
     await interaction.reply({
       content: `✅ Registered this channel (<#${channelId}>) for the reset reminder.`,

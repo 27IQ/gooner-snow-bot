@@ -1,3 +1,5 @@
+const { EmbedBuilder } = require('discord.js');
+
 class forumArticleData{
 
     constructor(title, link, content){
@@ -6,7 +8,8 @@ class forumArticleData{
         this.content=content
     }
 
-    sendMessage(channel) {
+    async sendMessage(channel) {
+    
         const embed = new EmbedBuilder()
             .setTitle(this.title)
             .setURL(this.link)
@@ -14,7 +17,8 @@ class forumArticleData{
             .setColor(0x0099ff)
             .setTimestamp()
             .setFooter({ text: 'powered by Gooner Snow™' });
-
+    
+        console.log(`[SENDING] ${this.title}`);
         return channel.send({ embeds: [embed] });
     }
 

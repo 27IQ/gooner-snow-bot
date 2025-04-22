@@ -5,6 +5,7 @@ const path = require('path');
 require('dotenv').config();
 
 const { startMidnightReminder } = require('./reminder');
+const { startForumChecker } = require('./eventnotifier');
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds],
@@ -22,6 +23,9 @@ for (const file of commandFiles) {
 client.once('ready', () => {
   console.log(`🟢 Logged in as ${client.user.tag}`);
   startMidnightReminder(client);
+  startForumChecker(client,"https://forum.netmarble.com/futurefight_en/list/2196/1")//Update news
+  startForumChecker(client,"https://forum.netmarble.com/futurefight_en/list/2227/1")//Sneakpeek
+  startForumChecker(client,"https://forum.netmarble.com/futurefight_en/list/2517/1")//Events (Ongoing)
 });
 
 client.on('interactionCreate', async interaction => {
