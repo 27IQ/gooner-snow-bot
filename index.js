@@ -26,6 +26,7 @@ client.once('ready', () => {
   startForumChecker(client,"https://forum.netmarble.com/futurefight_en/list/2196/1")//Update news
   startForumChecker(client,"https://forum.netmarble.com/futurefight_en/list/2227/1")//Sneakpeek
   startForumChecker(client,"https://forum.netmarble.com/futurefight_en/list/2517/1")//Events (Ongoing)
+  startForumChecker(client,"https://forum.netmarble.com/futurefight_en/list/75/1")//news
 });
 
 client.on('interactionCreate', async interaction => {
