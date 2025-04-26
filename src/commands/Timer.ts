@@ -1,11 +1,12 @@
 import { CommandInteraction, Client, SlashCommandBuilder } from "discord.js";
 import { Command } from "../Command";
+import { DB } from "src/DB/DBService";
 
 export const timer: Command = {
     data: new SlashCommandBuilder()
         .setName('timer')
         .setDescription('Replies with the time until the next Reset.'),
-    async run (client: Client, interaction: CommandInteraction<any>){
+    async run (client: Client, db:DB, interaction: CommandInteraction<any>){
 
         const now: Date = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
         

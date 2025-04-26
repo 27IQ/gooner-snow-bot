@@ -12,7 +12,7 @@ export const registerChannel:Command= {
         .setDescription('The role to ping at midnight')
         .setRequired(true)
     ),
-    async run(client:Client,interaction:CommandInteraction<any>) {
+    async run(client:Client,db:DB, interaction:CommandInteraction<any>) {
 
         const guild_id:BigInt=BigInt(process.env.GUILDID!)
         let role=interaction.options.get('role')
@@ -24,14 +24,10 @@ export const registerChannel:Command= {
 
         const channel=new Channel({guild_id, channel_id, role_id} as IChannel)
 
-        const db=new DB();
         db.saveChannel(channel);
         let retreivedData:Channel=db.getChannel(guild_id,channel_id)!
         console.log(retreivedData.toString())
         console.log(`added channel to DB`)
-        //db.close()
-
-        prefill()
 
         interaction.followUp(`The Channel got registered with the <@&${retreivedData.role_id}> role.`)
     }
