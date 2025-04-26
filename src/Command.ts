@@ -1,5 +1,6 @@
-import { CommandInteraction, ChatInputApplicationCommandData, Client } from "discord.js";
+import { CommandInteraction, ChatInputApplicationCommandData, Client, SlashCommandBuilder, SlashCommandOptionsOnlyBuilder} from "discord.js";
 
-export interface Command extends ChatInputApplicationCommandData {
+export interface Command {
+    data: SlashCommandOptionsOnlyBuilder
     run: (client: Client, interaction: CommandInteraction) => void;
 }
