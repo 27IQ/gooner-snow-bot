@@ -1,8 +1,8 @@
 import Database from 'better-sqlite3';
 import fs from 'fs'
 import path from 'path';
-import { Channel, IsChannel } from './datatypes/Channel';
-import { forumArticle } from './datatypes/forumArticle';
+import { Channel, IsChannel } from '../DB/datatypes/Channel';
+import { forumArticle } from '../DB/datatypes/forumArticle';
 import { scrapeForumArticles } from '../webscraper/forumScraper'
 
 

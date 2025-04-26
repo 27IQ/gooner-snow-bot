@@ -1,6 +1,6 @@
 import { CommandInteraction, Client, SlashCommandBuilder } from "discord.js";
 import { Command } from "../Command";
-import { DB } from "src/DB/DBService";
+import { DB } from "../DB/DBService";
 
 export const timer: Command = {
     data: new SlashCommandBuilder()

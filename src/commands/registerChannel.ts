@@ -1,5 +1,5 @@
 import {Client, CommandInteraction, SlashCommandBuilder } from "discord.js";
-import { Command } from "src/Command";
+import { Command } from "../Command";
 import { DB } from "../DB/DBService";
 import { Channel, IChannel } from "../DB/datatypes/Channel";
 

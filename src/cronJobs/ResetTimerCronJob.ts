@@ -1,5 +1,5 @@
 import { Client } from "discord.js";
-import { DB } from "src/DB/DBService";
+import { DB } from "../DB/DBService";
 import { IsimpleCronJob } from "../CronJob";
 import cron from "node-cron"
 
