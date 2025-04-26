@@ -36,7 +36,3 @@ export const registerChannel:Command= {
         interaction.followUp(`The Channel got registered with the <@&${retreivedData.role_id}> role.`)
     }
 }
-
-function prefill(){
-
-}
