@@ -1,7 +1,8 @@
 import { CommandInteraction, Client, Interaction } from "discord.js";
 import { Commands } from "../Commands";
+import { DB } from "src/DB/DBService";
 
-export default (client: Client): void => {
+export default (client: Client, db:DB): void => {
     client.on("interactionCreate", async (interaction: Interaction) => {
         if (interaction.isChatInputCommand()) {
             await handleSlashCommand(client, interaction);

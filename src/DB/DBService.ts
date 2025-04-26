@@ -1,60 +1,56 @@
 import Database from 'better-sqlite3';
-import fs, { Dir } from 'fs'
+import fs from 'fs'
 import path from 'path';
+import { Channel, IsChannel } from './datatypes/Channel';
+import { forumArticle } from './datatypes/forumArticle';
+import { scrapeForumArticles } from '../webscraper/forumScraper'
+
 
 
 const DIRPATH=path.join(__dirname,"../data")
 const FILENAME="db.db"
 const DBPATH=path.join(DIRPATH,FILENAME)
-
-export interface IChannel{
-  guild_id: BigInt;
-  channel_id: BigInt;
-  role_id: BigInt;
-}
-
-export interface IsChannel{
-  guild_id: string;
-  channel_id:  string;
-  role_id:  string;
-}
-
-export class Channel {
-  guild_id: BigInt;
-  channel_id: BigInt;
-  role_id: BigInt;
-
-  constructor(obj: IChannel|IsChannel){
-
-    if (Number.isNaN(obj.guild_id)){
-      this.guild_id=obj.guild_id as BigInt
-      this.channel_id=obj.channel_id as BigInt
-      this.role_id=obj.role_id as BigInt
-    }else{
-      this.guild_id=BigInt(obj.guild_id as string)
-      this.channel_id=BigInt(obj.channel_id as string)
-      this.role_id=BigInt(obj.role_id as string)
-    }
-  }
-
-  toString():string{
-    return `${this.guild_id}, ${this.channel_id}, ${this.role_id}`
-  }
-}
+const Feeds=[
+  "https://forum.netmarble.com/futurefight_en/list/75/1",
+  "https://forum.netmarble.com/futurefight_en/list/2517/1",
+  "https://forum.netmarble.com/futurefight_en/list/2227/1",
+  "https://forum.netmarble.com/futurefight_en/list/2196/1"
+]
 
 export class DB {
   private db: Database.Database;
 
   constructor() {
-    if(!fs.existsSync(DBPATH))
+    let isFirstTime=false
+
+    if(!fs.existsSync(DBPATH)){
       fs.mkdirSync(DIRPATH, {recursive:true});
       fs.writeFileSync(DBPATH,"")
+      isFirstTime=true
+    }
 
     this.db = new Database(DBPATH);
     this.createTable();
+
+    if(isFirstTime)
+      this.prefill()
+  }
+
+  private async prefill(){
+    console.log("prefilling the articles")
+    for(let feed of Feeds){
+      let articles=await scrapeForumArticles(feed)
+
+      articles.forEach(article => {
+          if(!this.containsArticle(article))
+            this.saveArticle(article)
+      });
+    }
   }
 
   private createTable(): void {
+
+    //channelTable
     this.db.prepare(`
       CREATE TABLE IF NOT EXISTS channel (
         guild_id TEXT,
@@ -63,9 +59,19 @@ export class DB {
         PRIMARY KEY (guild_id, channel_id)
       )
     `).run();
+
+    //channelTable
+    this.db.prepare(`
+      CREATE TABLE IF NOT EXISTS articles (
+        title TEXT,
+        link TEXT,
+        content TEXT,
+        PRIMARY KEY (link)
+      )
+    `).run();
   }
 
-  public saveChannel(channel: Channel): void {
+  saveChannel(channel: Channel): void {
     const stmt = this.db.prepare<string[],null>(`
       INSERT OR REPLACE INTO channel (guild_id, channel_id, role_id)
       VALUES (?, ?, ?)
@@ -74,15 +80,41 @@ export class DB {
     console.log(`Saved role for guild ${channel.guild_id}, channel ${channel.channel_id}`);
   }
 
-  public getChannel(guild_id: BigInt, channel_id: BigInt): Channel | null {
+  getChannel(guild_id: BigInt, channel_id: BigInt): Channel | null {
     const stmt = this.db.prepare<string[],IsChannel>(`
       SELECT * FROM channel WHERE guild_id = ? AND channel_id = ?
     `);
 
     const channel = stmt.get(guild_id.toString(), channel_id.toString());
-    //console.log(channel.channel_id, channel.guild_id, channel.role_id)
-    
     return channel ? new Channel(channel) : null;
+  }
+
+  getAllChannels(): Channel[] | null{
+    const stmt = this.db.prepare<string[],IsChannel[]>(`
+      SELECT * FROM channel
+    `);
+
+    const channel = stmt.get();
+    return channel ? channel.map(ischannel=>new Channel(ischannel)) : null
+  }
+
+  saveArticle(article: forumArticle): void {
+    const stmt = this.db.prepare<string[],null>(`
+      INSERT OR REPLACE INTO articles (title, link, content)
+      VALUES (?, ?, ?)
+    `);
+
+    stmt.run(article.title, article.link, article.content);
+    console.log(`Saved article ${article.title} from ${article.link}`);
+  }
+
+  containsArticle(article:forumArticle):boolean{
+    const stmt = this.db.prepare<string,forumArticle>(`
+      SELECT * FROM articles WHERE link = ?
+    `);
+
+    const channel = stmt.get(article.link);
+    return channel!=undefined;
   }
 
   // Close the database connection

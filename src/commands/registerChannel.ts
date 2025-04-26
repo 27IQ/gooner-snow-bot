@@ -1,6 +1,7 @@
 import {Client, CommandInteraction, SlashCommandBuilder } from "discord.js";
 import { Command } from "src/Command";
-import { Channel, DB, IChannel } from "../DB/DBService";
+import { DB } from "../DB/DBService";
+import { Channel, IChannel } from "../DB/datatypes/Channel";
 
 export const registerChannel:Command= {
     data: new SlashCommandBuilder()
@@ -28,8 +29,14 @@ export const registerChannel:Command= {
         let retreivedData:Channel=db.getChannel(guild_id,channel_id)!
         console.log(retreivedData.toString())
         console.log(`added channel to DB`)
-        db.close()
+        //db.close()
 
-        interaction.followUp(`The Channel got registered with the <@&${retreivedData.role_id} role.>`)
+        prefill()
+
+        interaction.followUp(`The Channel got registered with the <@&${retreivedData.role_id}> role.`)
     }
+}
+
+function prefill(){
+
 }
