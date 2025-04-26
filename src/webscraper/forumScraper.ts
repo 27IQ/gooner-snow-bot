@@ -31,7 +31,7 @@ export async function scrapeForumArticles(link:string) {
     })
   );
 
-  const smalltags = ['Benachrichtigung', 'Event'];
+  const smalltags = ['Benachrichtigung', 'Event', 'Unbedingt lesen'];
   const bigtags = [
     'Unbedingt lesen NEWS',
     'Benachrichtigung UPDATE NEWS',
