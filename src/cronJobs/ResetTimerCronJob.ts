@@ -13,9 +13,9 @@ export const ResetTimerCronJob:IsimpleCronJob ={
             if(channels==null)
                 return
 
-            channels.forEach(channel=>channel.send(client,``))
-          }, {
-            timezone: 'Asia/Seoul',
-          });
+            channels.forEach(channel=>channel.send(client,`TIMER RESET <@&${channel.role_id}>`))
+        }, {
+              timezone: 'Asia/Seoul',
+        });
     }
 }
