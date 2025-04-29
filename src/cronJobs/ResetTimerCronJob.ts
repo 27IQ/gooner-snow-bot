@@ -16,6 +16,8 @@ export const ResetTimerCronJob:IsimpleCronJob ={
             }
 
             channels.forEach(channel=>channel.send(client,`TIMER RESET <@&${channel.role_id}>`))
+
+            console.log(`${this.name}: reset message send`)
         }, {
               timezone: 'Asia/Seoul',
         });

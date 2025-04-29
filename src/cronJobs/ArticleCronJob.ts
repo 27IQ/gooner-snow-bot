@@ -32,12 +32,17 @@ export const ArticleCronJob:IForumCronJob={
                 articlesArrays.flat().filter(article=>!db.containsArticle(article)
             ))
             
+
+            let counter=0
             channels.forEach((channel:Channel)=>{
                 newArticles.forEach(async article=>{
                     article.sendMessage(await channel.resolve(client))
                     db.saveArticle(article)
+                    counter++
                 })
             })
+
+            console.log(`${counter} new articles have been saved`)
         }, {
             timezone: 'Asia/Seoul',
         });
