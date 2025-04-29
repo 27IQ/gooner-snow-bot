@@ -10,8 +10,10 @@ export const ResetTimerCronJob:IsimpleCronJob ={
 
             const channels=db.getAllChannels()
 
-            if(channels==null)
+            if(channels==null){
+                console.error(`no Channels found for ${this.name}`)
                 return
+            }
 
             channels.forEach(channel=>channel.send(client,`TIMER RESET <@&${channel.role_id}>`))
         }, {

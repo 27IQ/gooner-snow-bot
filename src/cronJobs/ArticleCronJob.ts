@@ -19,8 +19,10 @@ export const ArticleCronJob:IForumCronJob={
     
             const channels=db.getAllChannels()
     
-            if(channels==null)
+            if(channels==null){
+                console.error(`no Channels found for ${this.name}`)
                 return
+            }
     
             let articlesArrays = await Promise.all(
                 this.links.map(link => scrapeForumArticles(link))
