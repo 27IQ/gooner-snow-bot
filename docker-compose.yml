@@ -7,3 +7,7 @@ services:
       - TOKEN=${TOKEN}
     env_file:
       - .env
+    volumes:
+      - db-data:/app/src/data
+volumes:
+  db-data:
