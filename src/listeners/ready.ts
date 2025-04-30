@@ -2,6 +2,7 @@ import { Client } from "discord.js";
 import { Commands } from "../Commands";
 import { DB } from "../DB/DBService";
 import { cronJobs } from "../CronJobs";
+import { scrapeAndSend } from "../cronJobs/ArticleCronJob";
 
 
 export default (client: Client, db:DB): void => {
@@ -21,5 +22,7 @@ export default (client: Client, db:DB): void => {
             job.start(client,db)
             console.log(`cronjob ${job.name} has started`)
         })
+
+        await scrapeAndSend(client,db,"start-up scrape")
     });
 };

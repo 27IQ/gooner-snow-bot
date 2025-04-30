@@ -7,19 +7,22 @@ export const ResetTimerCronJob:IsimpleCronJob ={
     name: "ResetTimerCronJob",
     start: function (client: Client, db: DB): void {
         cron.schedule('0 0 0 * * *', async () => {
-
-            const channels=db.getAllChannels()
-
-            if(channels==null){
-                console.error(`no Channels found for ${this.name}`)
-                return
-            }
-
-            channels.forEach(channel=>channel.send(client,`TIMER RESET <@&${channel.role_id}>`))
-
-            console.log(`${this.name}: reset message send`)
+            resetTimerMessage(client,db,this.name)
         }, {
               timezone: 'Asia/Seoul',
         });
     }
+}
+
+export function resetTimerMessage(client: Client, db: DB, name:string){
+    const channels=db.getAllChannels()
+
+    if(channels==null){
+        console.error(`no Channels found for ${name}`)
+        return
+    }
+
+    channels.forEach(channel=>channel.send(client,`TIMER RESET <@&${channel.role_id}>`))
+
+    console.log(`${name}: reset message send`)
 }

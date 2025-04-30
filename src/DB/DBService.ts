@@ -24,9 +24,12 @@ export class DB {
     let isFirstTime=false
 
     if(!fs.existsSync(DBPATH)){
+      console.log("creating db file")
       fs.mkdirSync(DIRPATH, {recursive:true});
       fs.writeFileSync(DBPATH,"")
       isFirstTime=true
+    }else{
+      console.log("loading db file")
     }
 
     this.db = new Database(DBPATH);
@@ -90,12 +93,13 @@ export class DB {
   }
 
   getAllChannels(): Channel[] | null{
-    const stmt = this.db.prepare<string[],IsChannel[]>(`
+    const stmt = this.db.prepare<string[],IsChannel>(`
       SELECT * FROM channel
     `);
 
-    const channel = stmt.get();
-    return channel ? channel.map(ischannel=>new Channel(ischannel)) : null
+    const channel = stmt.all();
+
+    return channel!=undefined? channel.map(isChannel=>(new Channel(isChannel))) : null
   }
 
   saveArticle(article: forumArticle): void {
