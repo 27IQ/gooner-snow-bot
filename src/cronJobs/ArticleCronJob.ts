@@ -3,7 +3,6 @@ import cron from 'node-cron'
 import { DB } from "../DB/DBService";
 import { scrapeForumArticles } from "../webscraper/forumScraper"
 import { IForumCronJob } from "../CronJob";
-import { Channel } from "../DB/datatypes/Channel";
 
 export const ArticleCronJob:IForumCronJob={
     name: "ArticleCronJob",
@@ -25,22 +24,23 @@ export const ArticleCronJob:IForumCronJob={
             }
     
             let articlesArrays = await Promise.all(
-                this.links.map(link => scrapeForumArticles(link))
+                this.links.map(async link => await scrapeForumArticles(link))
             );
             
-            const newArticles = await Promise.all(
-                articlesArrays.flat().filter(article=>!db.containsArticle(article)
-            ))
+            const newArticles = articlesArrays.flat().filter(article=>!db.containsArticle(article))
             
-
             let counter=0
-            channels.forEach((channel:Channel)=>{
-                newArticles.forEach(async article=>{
-                    article.sendMessage(await channel.resolve(client))
-                    db.saveArticle(article)
-                    counter++
-                })
-            })
+            for (let channel of channels){
+                for(let article of newArticles){
+                    try {
+                        await article.sendMessage(await channel.resolve(client));
+                        db.saveArticle(article);
+                        counter++;
+                    } catch (err) {
+                        console.error(`Failed to send or save article:`, err);
+                    }
+                }
+            }
 
             console.log(`${counter} new articles have been saved`)
         }, {
